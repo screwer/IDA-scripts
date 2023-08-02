@@ -19,16 +19,16 @@ def KB(n):
 
 #-------------------------------------------------------------------
 #
-# STM32F103C8
+# STM32F103RET6
 #
 # Processor options -> ARM LittleEndian -> No automatic Thumb switch -> ARMv7-M (Thumb-2, ARM instructions NO)
 # Options -> Disassembly: Number Of Opcode bytes = 4, Instruction indentation = 32
 #
 class Features:
 
-    FlashSize       = KB(128)
-    SRamSize        = KB(20)
-    VecTableSize    = 0xE8
+    FlashSize       = KB(512)
+    SRamSize        = KB(64)
+    VecTableSize    = 0x12C
 
     Peripherals = [
         'RCC',  'RTC',  'PWR',  'CRC',
@@ -41,7 +41,7 @@ class Features:
         'CAN1', # 'CAN2',
         'USB',
     ]
-    
+
 #-------------------------------------------------------------------
 
 def dump(obj, nested_level=0, output=sys.stdout):
@@ -312,7 +312,7 @@ REGS_MPU    = { 'TYPE':     0x00,   'CTRL':     0x04,   'RNR':      0x08,   'RBA
                 'RASR':     0x10 }
 
 REGS_RCC    = { 'CR':       0x00,   'CFGR':     0x04,   'CIR':      0x08,   'APB2RSTR': 0x0C,
-                'APB1RSTR': 0x10,   'AHBENR':   0x14,   'APB2ENR':  0x18,   'APB1ENR':  0x1C,   
+                'APB1RSTR': 0x10,   'AHBENR':   0x14,   'APB2ENR':  0x18,   'APB1ENR':  0x1C,
                 'BDCR':     0x20,   'CSR':      0x24,   'AHBSTR':   0x28,   'CFGR2':    0x2C }
 
 REGS_ADC    = { 'SR':       0x00,   'CR1':      0x04,   'CR2':      0x08,   'SMPR1':    0x0C,
@@ -348,7 +348,7 @@ REGS_RTC    = { 'CRH':      0x00,   'CRL':      0x04,   'PRLH':     0x08,   'PRL
 
 REGS_FSMC   = { 'BCR1':     0x00,   'BTR1':     0x04,   'BCR2':     0x08,   'BTR2':     0x0C,
                 'BCR3':     0x10,   'BTR3':     0x14,   'BCR4':     0x18,   'BTR4':     0x1C,
-                                    'BWTR1':   0x104,                       'BWTR2':   0x10C, 
+                                    'BWTR1':   0x104,                       'BWTR2':   0x10C,
                                     'BWTR3':   0x114,                       'BWTR4':   0x11C,
                 'PCR2': 0xA0000060, 'SR2':  0xA0000064, 'PMEM2':0xA0000068, 'PATT2':0xA000006C,
                                     'ECCR2':0xA0000074,
@@ -384,7 +384,7 @@ REGS_USB_OTG_FS = {
                 #
                 # Host-mode CSR map
                 #
-                'HCFG':     0x400,   'HFIR':    0x404,   'HFNUM':    0x408,  
+                'HCFG':     0x400,   'HFIR':    0x404,   'HFNUM':    0x408,
                 'HPTXSTS':  0x410,   'HAINT':   0x414,   'HAINTMASK':0x418,
                 'HPRT':     0x440,
                 #
@@ -418,8 +418,8 @@ REGS_USB_OTG_FS = {
                 # 'DIEPCTLx':0x920, 0x940 ... 0xAE0
                 # 'DIEPTSIZx':0x930, 0x950 ... 0xAF0
                 # DOEPCTLx':0xB20, 0xB40 ... 0xCC0, 0xCE0, 0xCFD
-                #        
-for n in xrange(0,7 + 1):
+                #
+for n in range(0,7 + 1):
     REGS_USB_OTG_FS[  'HCCHAR{}'.format(n)] = 0x500 + (0x20 * n)
     REGS_USB_OTG_FS[   'HCINT{}'.format(n)] = 0x508 + (0x20 * n)
     REGS_USB_OTG_FS['HCINTMSK{}'.format(n)] = 0x50C + (0x20 * n)
@@ -432,7 +432,7 @@ REGS_ETH    = { 'MACCR':    0x00,   'MACFFR':   0x04,   'MACHTHR':  0x08,   'MAC
                 'MACA0HR':  0x40,   'MACA0LR':  0x44,   'MACA1HR':  0x48,   'MACA1LR':  0x4C,
                 'MACA2HR':  0x50,   'MACA2LR':  0x54,   'MACA3HR':  0x58,   'MACA3LR':  0x5C,
                 'MMCCR':   0x100,   'MMCRIR':  0x104,   'MMCTIR':  0x108,   'MMCRIMR': 0x10C,
-                'MMCTIMR': 0x110,   
+                'MMCTIMR': 0x110,
                                                                             'MMCTGFSCCR':0x14C,
                 'MMCTGFMSCCR':0x150,
                                                         'MMCTGFCR':0x168,
@@ -490,7 +490,7 @@ REGS_PWR    = { 'CR':       0x00,   'CSR':      0x04 }
 
 REGS_BKP    = {                                                             'RTCCR':    0x2C,
                 'CR':       0x30,   'CSR':      0x34 }
-for n in xrange(1, 42 + 1):
+for n in range(1, 42 + 1):
     REGS_BKP['DR{}'.format(n)] = (n * 4) if (n < 11) else ((n-11)*4 + 0x40)
 
 REGS_DESIG  = { 'FLASH_SIZE':   0x7e0,
@@ -513,7 +513,7 @@ VALS_RCC_CR = {
     'HSITRIM_SHIFT':    3,
     'HSITRIM':  (0x1F << 3), # 3 == RCC_RC_HSITRIM_SHIFT
     'HSIRDY':   (1 << 1),
-    'HSION':    (1 << 0),    
+    'HSION':    (1 << 0),
 }
 
 VALS_RCC_CFGR = {
@@ -544,18 +544,19 @@ def idaSetOpAddrName(ea, n, Name):
 
 def CreateEnum(Regs, BaseAddr, EnumName):
 
-    idc.DelEnum(idc.GetEnum(EnumName))
+    idc.del_enum(idc.get_enum(EnumName))
 
-    EnumId = idc.add_enum(0, EnumName, idaapi.hexflag())
+    EnumId = idc.add_enum(0, EnumName, idaapi.hex_flag())
 
-    for Reg, Descr in Regs.iteritems():
+    for Reg, Descr in Regs.items():
         Comment = None
-        if isinstance(Descr, (int, long)):
+        # if isinstance(Descr, (int, long)):
+        if isinstance(Descr, int):
             Offset = Descr
         else:
             Offset = Descr[0]
             Comment = Descr[1]
-        
+
         EnumMemberName = EnumName + '_' + Reg
         idc.add_enum_member(EnumId, EnumMemberName, BaseAddr + Offset, -1)
         if Comment:
@@ -587,11 +588,11 @@ def CreateEnums():
         'ITR':      ITR_BASE,
         'SYS_TICK': SYS_TICK_BASE,
         'NVIC':     NVIC_BASE,
-        'SCB':      SCB_BASE,        
-        'MPU':      MPU_BASE,        
-        'STIR':     STIR_BASE,        
+        'SCB':      SCB_BASE,
+        'MPU':      MPU_BASE,
+        'STIR':     STIR_BASE,
         'DBGMCU':   DBGMCU_BASE,
-        'DESIG':    INFO_BASE,        
+        'DESIG':    INFO_BASE,
 
         'RCC':      RCC_BASE,
         'RTC':      RTC_BASE,
@@ -634,13 +635,14 @@ def CreateEnums():
     }
 
 
-    for RegsName, Descr in Enums.iteritems():
+    for RegsName, Descr in Enums.items():
 
         print(RegsName)
         print(Descr)
         print(type(Descr))
 
-        if isinstance(Descr, (int, long)):
+        # if isinstance(Descr, (int, long)):
+        if isinstance(Descr, int):
             CreateEnumByName(RegsName, Descr)
         else:
             for Item in Descr:
@@ -749,7 +751,8 @@ def CreateVecTable(TableSize=None):
         NameTrap = 'Trap_' + Name
 
         #idc.del_items(ea, 0, 4) # Undef before conversion
-        idaapi.do_unknown_range(ea, 4, 0)
+        #idaapi.do_unknown_range(ea, 4, 0)
+        idaapi.del_items(ea, 0, 4)
         idc.create_dword(ea)
         idc.set_name(ea, NameVec)
         if Comment:
@@ -797,15 +800,15 @@ def CreateSegmentSRAM():
 
     seg = ida_segment.getseg(startEA)
     Name = ida_segment.get_segm_name(seg) if seg else None
-    if Name == SRAM_NAME and startEA == seg.startEA and endEA == seg.endEA:
+    if Name == SRAM_NAME and startEA == seg.start_ea and endEA == seg.end_ea:
         #
         # SRAM already exist
         #
         pass
     else:
         seg = idaapi.segment_t()
-        seg.startEA = startEA
-        seg.endEA = endEA
+        seg.start_ea = startEA
+        seg.end_ea = endEA
         seg.bitness = 1 # 32-bit
         idaapi.add_segm_ex(seg, SRAM_NAME, 'CODE', 0)
 
